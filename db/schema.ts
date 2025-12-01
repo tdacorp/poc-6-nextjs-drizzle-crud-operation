@@ -15,10 +15,10 @@ export const posts = pgTable("posts", {
 export const comments = pgTable("comments", {
   id: serial("id").primaryKey(),
   postId: integer("post_id")
-  .references(() => posts.id, { onDelete: "cascade" }),
-  userName: varchar("user_name").notNull(),  
-  text: varchar("text").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
+  .references(() => posts.id, { onDelete: "cascade" }).notNull(),
+ username: varchar("user_name").notNull(), 
+   text: varchar("text").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
 // Categories table

@@ -1,45 +1,39 @@
-// app/actions/postActions.ts
-
 "use server";
 
-
 import { db } from "@/db";
-import { posts } from "@/db/schema";
-import { postCategories } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { desc } from "drizzle-orm";
+import { posts, postCategories } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { PostSchema, PostInput } from "@/app/validations/postSchema";
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 
-
-
-// Get all posts (descending by createdAt)
+// 1) Get all posts
 export async function getPosts() {
   return await db.select().from(posts).orderBy(desc(posts.createdAt));
 }
 
-// Create a new post
-
-
+// 2) Create Post
 export async function createPost(input: PostInput) {
   try {
     const data = PostSchema.parse(input);
 
     // Insert post
-    const [newPost] = await db.insert(posts).values({
-      title: data.title,
-      slug: data.slug,
-      content: data.content,
-      status: data.status,
-    }).returning();
+    const [newPost] = await db
+      .insert(posts)
+      .values({
+        title: data.title,
+        slug: data.slug,
+        content: data.content,
+        status: data.status,
+      })
+      .returning();
 
-    // Insert into join table
-    if (data.categoryIds && data.categoryIds.length > 0) {
-      const joinData = data.categoryIds.map(catId => ({
+    // Insert category relations
+    if (data.categoryIds?.length) {
+      const joinRows = data.categoryIds.map((cid) => ({
         postId: newPost.id,
-        categoryId: catId,
+        categoryId: cid,
       }));
-      await db.insert(postCategories).values(joinData);
+      await db.insert(postCategories).values(joinRows);
     }
 
     return newPost;
@@ -49,36 +43,49 @@ export async function createPost(input: PostInput) {
   }
 }
 
-// EDIT POST
-export async function updatePost(id: number, data: PostInput, categoryIds?: number[]) {
-  // 1️⃣ Update post itself
+// 3) Update Post
+export async function updatePost(
+  id: number,
+  data: PostInput,
+  categoryIds?: number[]
+) {
   const [updatedPost] = await db
     .update(posts)
     .set(data)
-  .where(eq(posts.id, id))
+    .where(eq(posts.id, id))
     .returning();
 
-  // 2️⃣ Update join table
-  if (categoryIds && categoryIds.length > 0) {
-    // a) Delete existing relations
-    await db
-      .delete(postCategories)
-    .where(eq(postCategories.postId, id));
-    // b) Insert new relations
-    const newRelations = categoryIds.map((catId) => ({
+  // Replace category mappings
+  if (categoryIds?.length) {
+    await db.delete(postCategories).where(eq(postCategories.postId, id));
+
+    const joinRows = categoryIds.map((cid) => ({
       postId: id,
-      categoryId: catId,
+      categoryId: cid,
     }));
-    await db.insert(postCategories).values(newRelations);
+
+    await db.insert(postCategories).values(joinRows);
   }
 
   return updatedPost;
 }
 
-
-
-// Delete a post by ID
+// 4) Delete Post
 export async function deletePost(id: number) {
-  const deleted = await db.delete(posts).where(eq(posts.id, id)).returning();
-  return deleted[0];
+  const [deleted] = await db
+    .delete(posts)
+    .where(eq(posts.id, id))
+    .returning();
+
+  return deleted;
+}
+
+// 5) Get single post
+export async function getPostById(id: number) {
+  const rows = await db
+    .select()
+    .from(posts)
+    .where(eq(posts.id, id));
+
+  return rows[0] ?? null;
 }

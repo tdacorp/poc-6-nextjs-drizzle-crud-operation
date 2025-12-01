@@ -243,6 +243,8 @@ export default function PostsClient({
                   Delete
                 </button>
               </div>
+
+               {/* <CommentsClient postId={p.id} initialComments={[]} /> */}
             </li>
           ))}
         </ul>

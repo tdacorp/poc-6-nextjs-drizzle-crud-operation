@@ -15,6 +15,13 @@
       "when": 1764504097660,
       "tag": "0001_wild_yellowjacket",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764585655351,
+      "tag": "0002_sweet_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }

@@ -6,7 +6,8 @@ export default function Header() {
       <ul className=" flex justify-around">
         <li><Link href="/posts">Post</Link></li>
         <li><Link href="/categories">Category</Link></li>
-        <li><Link href="/comments">Comment</Link></li>
+        {/* <li><Link href="/comments">Comment</Link></li> */}
+        <li>Comment</li>
       </ul>
     </header>
   );
