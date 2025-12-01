@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createCategory, getCategories, CategoryInput } from "../actions/categoryActions";
+import { createCategory, getCategories } from "../actions/categoryActions";
+import { CategoryInput } from "../validations/categorySchema";
+
 
 interface Category {
   id: number;

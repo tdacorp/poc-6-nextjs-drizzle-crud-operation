@@ -5,8 +5,11 @@ import { categories } from "@/db/schema";
 import { CategorySchema, CategoryInput } from "@/app/validations/categorySchema";
 import { ZodError } from "zod";
 
+
+
 // ✅ Only export async functions
 export async function createCategory(input: CategoryInput) {
+  
   try {
     const data = CategorySchema.parse(input); // Zod validation
 
@@ -25,3 +28,4 @@ export async function createCategory(input: CategoryInput) {
 export async function getCategories() {
   return db.select().from(categories);
 }
+

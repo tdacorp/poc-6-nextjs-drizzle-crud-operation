@@ -14,7 +14,7 @@ export default function CommentClient({ initialComments, postId }: any) {
 
     const newComment = await createComment({ postId, username, text });
 
-    setComments((prev) => [...prev, newComment]);
+setComments((prev: Comment[]) => [...prev, newComment]);
     setUsername("");
     setText("");
   }
