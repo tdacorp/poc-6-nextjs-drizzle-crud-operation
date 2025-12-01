@@ -2,14 +2,9 @@
 
 import { useState } from "react";
 import { createComment } from "@/app/actions/commentActions";
+import CommentsList from "@/app/comments/CommentsList";
 
-export default function CommentClient({
-  initialComments,
-  postId,
-}: {
-  initialComments: any[];
-  postId: number;
-}) {
+export default function CommentClient({ initialComments, postId }: any) {
   const [comments, setComments] = useState(initialComments);
   const [username, setUsername] = useState("");
   const [text, setText] = useState("");
@@ -17,11 +12,7 @@ export default function CommentClient({
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    const newComment = await createComment({
-      postId,
-      username,
-      text,
-    });
+    const newComment = await createComment({ postId, username, text });
 
     setComments((prev) => [...prev, newComment]);
     setUsername("");
@@ -32,26 +23,9 @@ export default function CommentClient({
     <div className="mt-8">
       <h2 className="text-xl font-semibold mb-4">Comments</h2>
 
-      {/* List Comments */}
-    
-<div className="space-y-3">
-  {comments.length === 0 ? (
-    <p className="text-gray-500">No comments yet. Be the first to comment!</p>
-  ) : (
-    comments.map((c) => (
-      <div key={c.id} className="border p-3 rounded">
-        <p className="font-bold">{c.username}</p>
-        <p>{c.text}</p>
-        <span className="text-sm text-gray-500">
-          {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
-        </span>
-      </div>
-    ))
-  )}
-</div>
+      {/* ⬇️ IMPORTED COMMENT LIST */}
+      <CommentsList comments={comments} />
 
-
-      {/* Add Comment */}
       <form onSubmit={handleSubmit} className="mt-5 space-y-3">
         <input
           className="border p-2 rounded w-full"

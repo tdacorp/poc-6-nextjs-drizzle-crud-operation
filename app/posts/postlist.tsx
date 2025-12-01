@@ -2,6 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { createPost, updatePost, deletePost } from "../actions/postActions";
+import { createComment } from "../actions/commentActions";
+
+
 
 interface Post {
   id: number;
@@ -31,6 +34,30 @@ export default function PostsClient({
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [errors, setErrors] = useState<any>({});
+
+  const [activeCommentPostId, setActiveCommentPostId] = useState<number | null>(null);
+const [commentUsername, setCommentUsername] = useState("");
+const [commentText, setCommentText] = useState("");
+
+async function handleAddComment(postId: number) {
+  if (!commentUsername || !commentText) {
+    return alert("Please fill all fields");
+  }
+
+  await createComment({
+    postId,
+    username: commentUsername,
+    text: commentText,
+  });
+
+  alert("Comment added!");
+
+  // Reset form
+  setCommentUsername("");
+  setCommentText("");
+  setActiveCommentPostId(null);
+}
+
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -224,28 +251,72 @@ export default function PostsClient({
         <h2 className="text-xl font-semibold mb-4">Posts</h2>
         <ul className="divide-y">
           {postList.map((p) => (
-            <li key={p.id} className="flex justify-between py-4">
-              <div>
-                <p className="font-semibold">{p.title}</p>
-                <p className="text-sm text-gray-600">Status: {p.status}</p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(p)}
-                  className="px-3 py-1 bg-yellow-500 text-white rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(p.id)}
-                  className="px-3 py-1 bg-red-600 text-white rounded"
-                >
-                  Delete
-                </button>
-              </div>
+           <li key={p.id} className="py-4 border-b">
+  <div className="flex justify-between">
+    <div>
+      <p className="font-semibold">{p.title}</p>
+      <p className="text-sm text-gray-600">Status: {p.status}</p>
+    </div>
 
-               {/* <CommentsClient postId={p.id} initialComments={[]} /> */}
-            </li>
+    <div className="flex gap-2">
+      <button
+        onClick={() => handleEdit(p)}
+        className="px-3 py-1 bg-yellow-500 text-white rounded"
+      >
+        Edit
+      </button>
+
+      <button
+        onClick={() => handleDelete(p.id)}
+        className="px-3 py-1 bg-red-600 text-white rounded"
+      >
+        Delete
+      </button>
+
+      <button
+        onClick={() => setActiveCommentPostId(p.id)}
+        className="px-3 py-1 bg-green-600 text-white rounded"
+      >
+        Add Comment
+      </button>
+    </div>
+  </div>
+
+  {/* Comment form for this specific post */}
+  {activeCommentPostId === p.id && (
+    <div className="mt-3 p-3 border rounded bg-gray-50">
+      <input
+        type="text"
+        placeholder="Your name"
+        className="border p-2 rounded w-full mb-2"
+        value={commentUsername}
+        onChange={(e) => setCommentUsername(e.target.value)}
+      />
+
+      <textarea
+        placeholder="Write a comment..."
+        className="border p-2 rounded w-full mb-2"
+        value={commentText}
+        onChange={(e) => setCommentText(e.target.value)}
+      ></textarea>
+
+      <button
+        onClick={() => handleAddComment(p.id)}
+        className="px-4 py-2 bg-green-700 text-white rounded"
+      >
+        Submit Comment
+      </button>
+
+      <button
+        onClick={() => setActiveCommentPostId(null)}
+        className="ml-2 px-4 py-2 bg-gray-500 text-white rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  )}
+</li>
+
           ))}
         </ul>
       </div>

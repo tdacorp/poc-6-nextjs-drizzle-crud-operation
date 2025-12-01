@@ -34,3 +34,13 @@ export async function getCommentsByPost(postId: number) {
   }
 }
 
+
+
+export async function getAllComments() {
+  try {
+    return await db.select().from(comments);
+  } catch (error) {
+    console.error("Error fetching all comments:", error);
+    return [];
+  }
+}
